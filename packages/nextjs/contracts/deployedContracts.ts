@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     ExampleExternalContract: {
-      address: "0x172076E0166D1F9Cc711C77Adf8488051744980C",
+      address: "0x3aAde2dCD2Df6a8cAc689EE797591b2913658659",
       abi: [
         {
           inputs: [],
@@ -33,7 +33,7 @@ const deployedContracts = {
       inheritedFunctions: {},
     },
     Staker: {
-      address: "0xD5ac451B0c50B9476107823Af206eD814a2e2580",
+      address: "0xab16A69A5a8c12C732e0DEFF4BE56A70bb64c926",
       abi: [
         {
           inputs: [
@@ -48,27 +48,7 @@ const deployedContracts = {
         },
         {
           inputs: [],
-          name: "DeadlineNotEnded",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "NoBalanceToWithdraw",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "NoEtherSent",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "ThresholdIsMet",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "ThresholdNotMet",
+          name: "NoEtherInBalance",
           type: "error",
         },
         {
@@ -140,6 +120,19 @@ const deployedContracts = {
           name: "execute",
           outputs: [],
           stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "executed",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
         {
@@ -231,7 +224,7 @@ const deployedContracts = {
       inheritedFunctions: {},
     },
     Staker: {
-      address: "0xefd145C9398d3434611cbE41510aC19641460510",
+      address: "0x9266dCae82Ec335F3C176fA9dFb7Ba86b659104C",
       abi: [
         {
           inputs: [
@@ -246,42 +239,22 @@ const deployedContracts = {
         },
         {
           inputs: [],
-          name: "DeadlineNotEnded",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "NoBalanceToWithdraw",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "NoEtherSent",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "ThresholdIsMet",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "ThresholdNotMet",
+          name: "NoEtherInBalance",
           type: "error",
         },
         {
           anonymous: false,
           inputs: [
             {
-              indexed: false,
+              indexed: true,
               internalType: "address",
-              name: "",
+              name: "user",
               type: "address",
             },
             {
               indexed: false,
               internalType: "uint256",
-              name: "",
+              name: "amount",
               type: "uint256",
             },
           ],
@@ -338,6 +311,32 @@ const deployedContracts = {
           name: "execute",
           outputs: [],
           stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "executed",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "openForWithdraw",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
         {

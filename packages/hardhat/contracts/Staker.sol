@@ -10,13 +10,11 @@ contract Staker {
 	mapping(address => uint256) public balances;
 	uint256 public constant threshold = 1 ether;
 	uint256 public deadline;
-	bool public openForWithdraw; // New state variable
 
-	error NoEtherSent();
-	error DeadlineNotEnded();
-	error ThresholdNotMet();
-	error ThresholdIsMet();
-	error NoBalanceToWithdraw();
+	bool public openForWithdraw;
+	bool public executed;
+
+	error NoEtherInBalance();
 
 	event Stake(address indexed user, uint256 amount);
 
@@ -24,50 +22,75 @@ contract Staker {
 		exampleExternalContract = ExampleExternalContract(
 			exampleExternalContractAddress
 		);
-		deadline = block.timestamp + 30 seconds;
+		deadline = block.timestamp + 72 days;
+	}
+
+	// Modifier to check if the contract has not been completed
+	modifier notCompleted() {
+		require(
+			!exampleExternalContract.completed(),
+			"Contract already completed."
+		);
+		_;
+	}
+
+	// Modifier to check if the deadline has passed
+	modifier beforeDeadline() {
+		require(block.timestamp < deadline, "Staking period has ended.");
+		_;
+	}
+
+	// Modifier to check if the deadline has passed
+	modifier afterDeadline() {
+		require(block.timestamp >= deadline, "Deadline not reached yet.");
+		_;
+	}
+	// Modifier to check if the deadline has passed
+	modifier Executed() {
+		require(executed, "Execute before withdraw");
+		_;
+	}
+	// Modifier to check if the deadline has passed
+	modifier OpenForWithdraw() {
+		require(openForWithdraw, "Not open for withdraw");
+		_;
 	}
 
 	// Collect funds in a payable `stake()` function and track individual `balances` with a mapping:
-	function stake() public payable {
+	function stake() public payable beforeDeadline {
 		if (msg.value == 0) {
-			revert NoEtherSent();
+			revert NoEtherInBalance();
 		}
 		balances[msg.sender] += msg.value;
-
-		// If the deadline has passed and the threshold is met, openForWithdraw = true
-		if (address(this).balance < threshold) {
-			openForWithdraw = true;
-		}
-
 		emit Stake(msg.sender, msg.value);
 	}
 
 	// After some `deadline` allow anyone to call an `execute()` function
-	function execute() public {
-		if (block.timestamp < deadline) {
-			revert DeadlineNotEnded();
+	function execute() public notCompleted afterDeadline {
+		executed = true;
+
+		if (address(this).balance == 0) {
+			revert NoEtherInBalance();
 		}
 
-		// If the deadline has passed and the threshold is met, it should call `exampleExternalContract.complete{value: address(this).balance}()`
-		if (openForWithdraw = false) {
+		if (address(this).balance < threshold) {
+			openForWithdraw = true;
+		} else {
 			exampleExternalContract.complete{ value: address(this).balance }();
 		}
 	}
 
 	// If the `threshold` was not met, allow everyone to call a `withdraw()` function to withdraw their balance
-	function withdraw() external {
-		if (block.timestamp < deadline) {
-			revert DeadlineNotEnded();
-		}
-
-		if (openForWithdraw = true) {
-			revert ThresholdIsMet(); // Revert if threshold is met (not allowed to withdraw)
-		}
-
+	function withdraw()
+		external
+		notCompleted
+		afterDeadline
+		Executed
+		OpenForWithdraw
+	{
 		uint256 userBalance = balances[msg.sender];
-
 		if (userBalance == 0) {
-			revert NoBalanceToWithdraw();
+			revert NoEtherInBalance();
 		}
 
 		// Reset the user's balance before transferring to prevent reentrancy attacks
@@ -81,7 +104,6 @@ contract Staker {
 	// Add a `timeLeft()` view function that returns the time left before the deadline for the frontend
 	function timeLeft() public view returns (uint256) {
 		if (block.timestamp >= deadline) {
-			console.log("timeleft:", block.timestamp);
 			return 0;
 		} else {
 			return deadline - block.timestamp;
